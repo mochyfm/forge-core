@@ -34,7 +34,10 @@ const canonical = new URL(Astro.url.pathname, site.url).href;
     <slot />
 
     <script>
-      // Scroll-reveal sin librerías: añade `is-visible` al entrar en viewport.
+      // Animaciones sin librerías: scroll-reveal + count-up + parallax.
+      const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // 1) Scroll-reveal: añade `is-visible` al entrar en viewport.
       const io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -47,11 +50,56 @@ const canonical = new URL(Astro.url.pathname, site.url).href;
         { threshold: 0.15 },
       );
 
-      const observeAll = () => {
-        document
-          .querySelectorAll(".reveal:not(.is-visible)")
-          .forEach((el) => io.observe(el));
+      // 2) Count-up: anima [data-countup="N"] de 0 a N al verse.
+      const animateCount = (el) => {
+        const target = parseFloat(el.getAttribute("data-countup")) || 0;
+        if (reduce) { el.textContent = String(target); return; }
+        const dur = 1200, start = performance.now();
+        const tick = (now) => {
+          const t = Math.min(1, (now - start) / dur);
+          el.textContent = String(Math.round(target * (1 - Math.pow(1 - t, 3))));
+          if (t < 1) requestAnimationFrame(tick);
+          else el.textContent = String(target);
+        };
+        requestAnimationFrame(tick);
       };
+      const countIO = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              animateCount(entry.target);
+              countIO.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.4 },
+      );
+
+      const observeAll = () => {
+        document.querySelectorAll(".reveal:not(.is-visible)").forEach((el) => io.observe(el));
+        document.querySelectorAll("[data-countup]").forEach((el) => countIO.observe(el));
+      };
+
+      // 3) Parallax sutil: [data-parallax="0.2"] (un solo listener).
+      if (!reduce) {
+        let ticking = false;
+        const updateParallax = () => {
+          const vh = window.innerHeight;
+          document.querySelectorAll("[data-parallax]").forEach((el) => {
+            const speed = parseFloat(el.getAttribute("data-parallax")) || 0.2;
+            const r = el.getBoundingClientRect();
+            const offset = ((r.top + r.height / 2) - vh / 2) * -speed;
+            el.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0) scale(1.12)`;
+          });
+          ticking = false;
+        };
+        addEventListener("scroll", () => {
+          if (!ticking) { requestAnimationFrame(updateParallax); ticking = true; }
+        }, { passive: true });
+        addEventListener("resize", updateParallax, { passive: true });
+        updateParallax();
+        document.addEventListener("astro:after-swap", updateParallax);
+      }
 
       observeAll();
       // Re-ejecuta tras navegaciones con View Transitions.

@@ -47,29 +47,46 @@
 }
 
 /*
-  Scroll-reveal: añade la clase `reveal` (y opcional `reveal-delay-N`)
-  a cualquier elemento; el observer de Base.astro le pone `is-visible`.
-  Respeta prefers-reduced-motion.
+  Animaciones reutilizables del núcleo (las hereda toda landing):
+  - `reveal` + variantes de dirección/escala y `reveal-delay-N` (stagger).
+    Componen vía custom properties (sin guerra de especificidad).
+    El observer de Base.astro pone `is-visible` al entrar en viewport.
+  - `data-countup="25"`  -> cuenta animada de 0 al número.
+  - `data-parallax="0.2"` -> parallax sutil al hacer scroll.
+  Todo respeta prefers-reduced-motion.
 */
 @layer components {
   .reveal {
     opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transform: translate3d(var(--reveal-x, 0), var(--reveal-y, 16px), 0) scale(var(--reveal-s, 1));
+    transition: opacity 0.6s ease-out, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0s);
+    will-change: opacity, transform;
   }
   .reveal.is-visible {
     opacity: 1;
     transform: none;
   }
-  .reveal-delay-1 { transition-delay: 0.08s; }
-  .reveal-delay-2 { transition-delay: 0.16s; }
-  .reveal-delay-3 { transition-delay: 0.24s; }
+
+  /* Direcciones / escala */
+  .reveal-up { --reveal-y: 18px; }
+  .reveal-down { --reveal-y: -18px; }
+  .reveal-left { --reveal-x: -26px; --reveal-y: 0; }
+  .reveal-right { --reveal-x: 26px; --reveal-y: 0; }
+  .reveal-scale { --reveal-s: 0.92; --reveal-y: 0; }
+
+  /* Stagger */
+  .reveal-delay-1 { --reveal-delay: 0.08s; }
+  .reveal-delay-2 { --reveal-delay: 0.16s; }
+  .reveal-delay-3 { --reveal-delay: 0.24s; }
+  .reveal-delay-4 { --reveal-delay: 0.32s; }
+  .reveal-delay-5 { --reveal-delay: 0.40s; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .reveal {
-    opacity: 1;
-    transform: none;
+    opacity: 1 !important;
+    transform: none !important;
     transition: none;
   }
 }
