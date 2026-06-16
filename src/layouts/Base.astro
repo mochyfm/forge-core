@@ -10,13 +10,19 @@ interface Props {
   image?: string;
   /** JSON-LD (objeto o array). Usa buildLocalBusiness() de "@mochyfm/forge-core/lib/seo". */
   schema?: unknown;
+  /** Fuerza noindex en esta página (independiente de SITE_INDEXABLE). */
+  noindex?: boolean;
 }
 
-const { site, title, description, image, schema } = Astro.props;
+const { site, title, description, image, schema, noindex } = Astro.props;
 const desc = description ?? site.description;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} — ${site.tagline}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 const ogImage = image ? new URL(image, site.url).href : undefined;
+
+// Indexación: bloqueada por defecto (p. ej. en previews/*.pages.dev).
+// Para producción real, define la env SITE_INDEXABLE="true" en el deploy.
+const blockIndex = noindex || import.meta.env.SITE_INDEXABLE !== "true";
 ---
 
 <!doctype html>
@@ -26,6 +32,7 @@ const ogImage = image ? new URL(image, site.url).href : undefined;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
+    {blockIndex && <meta name="robots" content="noindex, nofollow" />}
     <title>{fullTitle}</title>
     <meta name="description" content={desc} />
     <meta property="og:title" content={fullTitle} />
