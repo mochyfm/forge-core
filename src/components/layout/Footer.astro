@@ -1,0 +1,19 @@
+---
+import { site } from "../../config/site";
+const year = new Date().getFullYear();
+---
+
+<footer class="border-t border-black/10 bg-neutral-50">
+  <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-sm text-muted sm:flex-row">
+    <p>&copy; {year} {site.name}. Todos los derechos reservados.</p>
+    <nav class="flex gap-6">
+      {
+        site.nav.map((item) => (
+          <a href={item.href} class="transition-colors hover:text-ink">
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+</footer>

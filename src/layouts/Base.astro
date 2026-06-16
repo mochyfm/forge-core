@@ -1,0 +1,60 @@
+---
+import "../styles/global.css";
+import { site } from "../config/site";
+import { ClientRouter } from "astro:transitions";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = site.description } = Astro.props;
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name} — ${site.tagline}`;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+---
+
+<!doctype html>
+<html lang={site.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta name="generator" content={Astro.generator} />
+    <ClientRouter />
+  </head>
+  <body>
+    <slot />
+
+    <script>
+      // Scroll-reveal sin librerías: añade `is-visible` al entrar en viewport.
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("is-visible");
+              io.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.15 },
+      );
+
+      const observeAll = () => {
+        document
+          .querySelectorAll(".reveal:not(.is-visible)")
+          .forEach((el) => io.observe(el));
+      };
+
+      observeAll();
+      // Re-ejecuta tras navegaciones con View Transitions.
+      document.addEventListener("astro:after-swap", observeAll);
+    </script>
+  </body>
+</html>

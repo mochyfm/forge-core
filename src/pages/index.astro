@@ -1,0 +1,17 @@
+---
+import Base from "../layouts/Base.astro";
+import Header from "../components/layout/Header.astro";
+import Footer from "../components/layout/Footer.astro";
+import Hero from "../components/sections/Hero.astro";
+import Features from "../components/sections/Features.astro";
+---
+
+<Base>
+  <Header />
+  <main>
+    <Hero />
+    <Features />
+    {/* Añade aquí más secciones: crea cada una en src/components/sections/ */}
+  </main>
+  <Footer />
+</Base>

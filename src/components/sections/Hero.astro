@@ -1,0 +1,44 @@
+---
+import { site } from "../../config/site";
+---
+
+<section id="inicio" class="relative overflow-hidden">
+  <!-- Fondo decorativo (ligero, solo CSS) -->
+  <div
+    class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(60%_50%_at_50%_0%,color-mix(in_oklch,var(--color-brand)_18%,transparent),transparent)]"
+  >
+  </div>
+
+  <div class="mx-auto flex max-w-4xl flex-col items-center px-4 py-24 text-center sm:py-32">
+    <span
+      class="reveal mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-3 py-1 text-xs font-medium text-muted"
+    >
+      <span class="h-1.5 w-1.5 rounded-full bg-accent"></span>
+      {site.tagline}
+    </span>
+
+    <h1 class="reveal reveal-delay-1 max-w-3xl text-4xl font-extrabold tracking-tight text-balance sm:text-6xl">
+      Un titular potente que explica tu propuesta de valor
+    </h1>
+
+    <p class="reveal reveal-delay-2 mt-6 max-w-xl text-lg text-muted text-pretty">
+      Edita este bloque en <code>src/components/sections/Hero.astro</code>. Casi
+      todo es HTML estático: cero JavaScript salvo en las islas.
+    </p>
+
+    <div class="reveal reveal-delay-3 mt-8 flex flex-col gap-3 sm:flex-row">
+      <a
+        href={site.cta.href}
+        class="rounded-md bg-brand px-6 py-3 font-semibold text-white transition hover:bg-brand-dark"
+      >
+        {site.cta.label}
+      </a>
+      <a
+        href="#caracteristicas"
+        class="rounded-md border border-black/15 px-6 py-3 font-semibold text-ink transition hover:bg-black/5"
+      >
+        Saber más
+      </a>
+    </div>
+  </div>
+</section>
