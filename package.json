@@ -10,11 +10,13 @@
     "src/layouts",
     "src/components",
     "src/styles",
-    "src/config"
+    "src/config",
+    "src/lib"
   ],
   "exports": {
     "./styles.css": "./src/styles/global.css",
     "./config": "./src/config/site.ts",
+    "./lib/seo": "./src/lib/seo.ts",
     "./layouts/Base.astro": "./src/layouts/Base.astro",
     "./components/layout/Header.astro": "./src/components/layout/Header.astro",
     "./components/layout/Footer.astro": "./src/components/layout/Footer.astro",

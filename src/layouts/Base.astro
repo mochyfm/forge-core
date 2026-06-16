@@ -6,12 +6,17 @@ interface Props {
   site: SiteConfig;
   title?: string;
   description?: string;
+  /** Imagen para previews sociales (ruta o URL; se resuelve contra site.url). */
+  image?: string;
+  /** JSON-LD (objeto o array). Usa buildLocalBusiness() de "@mochyfm/forge-core/lib/seo". */
+  schema?: unknown;
 }
 
-const { site, title, description } = Astro.props;
+const { site, title, description, image, schema } = Astro.props;
 const desc = description ?? site.description;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} — ${site.tagline}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
+const ogImage = image ? new URL(image, site.url).href : undefined;
 ---
 
 <!doctype html>
@@ -27,6 +32,14 @@ const canonical = new URL(Astro.url.pathname, site.url).href;
     <meta property="og:description" content={desc} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.lang === "es" ? "es_ES" : site.lang} />
+    <meta name="twitter:card" content={ogImage ? "summary_large_image" : "summary"} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={desc} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    {schema && <script type="application/ld+json" set:html={JSON.stringify(schema)} />}
     <meta name="generator" content={Astro.generator} />
     <ClientRouter />
   </head>
