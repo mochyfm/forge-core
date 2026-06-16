@@ -1,6 +1,11 @@
 ---
-import { site } from "../../config/site";
+import type { SiteConfig } from "../../config/site";
 import MobileMenu from "../islands/MobileMenu.tsx";
+
+interface Props {
+  site: SiteConfig;
+}
+const { site } = Astro.props;
 ---
 
 <header class="sticky top-0 z-50 border-b border-black/10 bg-white/80 backdrop-blur">

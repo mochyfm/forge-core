@@ -1,14 +1,16 @@
 ---
 import "../styles/global.css";
-import { site } from "../config/site";
+import type { SiteConfig } from "../config/site";
 import { ClientRouter } from "astro:transitions";
 
 interface Props {
+  site: SiteConfig;
   title?: string;
   description?: string;
 }
 
-const { title, description = site.description } = Astro.props;
+const { site, title, description } = Astro.props;
+const desc = description ?? site.description;
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name} — ${site.tagline}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
 ---
@@ -21,9 +23,9 @@ const canonical = new URL(Astro.url.pathname, site.url).href;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonical} />
     <title>{fullTitle}</title>
-    <meta name="description" content={description} />
+    <meta name="description" content={desc} />
     <meta property="og:title" content={fullTitle} />
-    <meta property="og:description" content={description} />
+    <meta property="og:description" content={desc} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
     <meta name="generator" content={Astro.generator} />

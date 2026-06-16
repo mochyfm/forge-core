@@ -1,5 +1,10 @@
 ---
-import { site } from "../../config/site";
+import type { SiteConfig } from "../../config/site";
+
+interface Props {
+  site: SiteConfig;
+}
+const { site } = Astro.props;
 ---
 
 <section id="inicio" class="relative overflow-hidden">

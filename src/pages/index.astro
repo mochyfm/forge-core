@@ -1,17 +1,18 @@
 ---
+// Playground del núcleo: así consumirá cada landing el paquete.
 import Base from "../layouts/Base.astro";
 import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import Hero from "../components/sections/Hero.astro";
 import Features from "../components/sections/Features.astro";
+import { exampleSite as site } from "../config/site";
 ---
 
-<Base>
-  <Header />
+<Base site={site}>
+  <Header site={site} />
   <main>
-    <Hero />
+    <Hero site={site} />
     <Features />
-    {/* Añade aquí más secciones: crea cada una en src/components/sections/ */}
   </main>
-  <Footer />
+  <Footer site={site} />
 </Base>

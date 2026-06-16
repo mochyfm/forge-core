@@ -1,59 +1,82 @@
-# 🔨 Astro Forge
+# 🔨 @mochyfm/forge-core
 
-Plantilla base (esqueleto madre) para clonar **landing pages** rápido.
+**Núcleo compartido** para construir landings. NO se clona copiando la carpeta:
+es un **paquete privado** (GitHub Packages) que cada landing instala como
+dependencia. Así, al publicar una versión nueva del núcleo, todas las webs se
+actualizan con `pnpm update` + redeploy.
 
 - **Astro** → HTML estático, **0 KB de JS** por defecto.
-- **Islas Preact** (`client:*`) solo para lo interactivo (menús, carruseles, formularios…).
-- **Tailwind v4** con tema centralizado en tokens.
-- **Animaciones** ligeras: scroll-reveal por `IntersectionObserver` + View Transitions, sin librerías pesadas.
-- **Deploy en Cloudflare Pages** (salida estática).
+- **Islas Preact** (`client:*`) solo para lo interactivo.
+- **Tailwind v4** con tema en tokens.
+- **Animaciones** ligeras: scroll-reveal (`IntersectionObserver`) + View Transitions.
+- Cada landing despliega en **Cloudflare Pages** (estático).
 
-## Comandos
+## Qué exporta el núcleo
+
+- `@mochyfm/forge-core/styles.css` — Tailwind + tokens de tema + animaciones.
+- `@mochyfm/forge-core/config` — `defineSite()` y el tipo `SiteConfig`.
+- `@mochyfm/forge-core/layouts/Base.astro` — `<head>`/SEO + View Transitions + scroll-reveal.
+- `@mochyfm/forge-core/components/layout/{Header,Footer}.astro`
+- `@mochyfm/forge-core/components/sections/*` — secciones de ejemplo.
+- `@mochyfm/forge-core/components/islands/*` — islas Preact (p. ej. `MobileMenu`).
+
+Todos los componentes reciben la config por **props** (`site={site}`), nunca
+hardcodeada — así cada landing inyecta su propia marca.
+
+## Desarrollo del núcleo (playground)
+
+`src/pages/index.astro` es un playground que consume el propio núcleo igual que
+lo hará una landing.
 
 ```bash
 pnpm install
-pnpm dev      # http://localhost:4321
-pnpm build    # genera ./dist
-pnpm preview  # sirve ./dist en local
+pnpm dev      # http://localhost:4321  (previsualiza el núcleo)
+pnpm build
 ```
 
-## Estructura
+## Publicar una versión (GitHub Packages)
 
-```
-src/
-├── config/site.ts            # ⭐ marca, nav, contacto (editar al clonar)
-├── styles/global.css         # ⭐ tokens de tema: colores, fuentes, animaciones
-├── layouts/Base.astro        # <head>/SEO + View Transitions + scroll-reveal
-├── components/
-│   ├── layout/               # Header.astro, Footer.astro
-│   ├── sections/             # Hero.astro, Features.astro… (una por sección)
-│   └── islands/              # MobileMenu.tsx… (componentes Preact interactivos)
-└── pages/index.astro         # compone el layout + secciones
+```bash
+# token de GitHub con scope write:packages
+export GITHUB_TOKEN=ghp_xxx
+pnpm version patch        # sube 0.1.0 -> 0.1.1
+pnpm publish              # publica en npm.pkg.github.com (privado)
 ```
 
-## Cómo clonar una landing nueva
+## Consumir el núcleo en una landing nueva
 
-1. Copia toda la carpeta a `mi-nueva-landing/`.
-2. Edita **`src/config/site.ts`** (nombre, nav, contacto, CTA, URL).
-3. Edita los **tokens** de `src/styles/global.css` (colores `--color-brand*`, fuentes).
-4. Sustituye/añade secciones en `src/components/sections/` y referéncialas en `pages/index.astro`.
-5. Mete tus imágenes en `public/` y el favicon (`public/favicon.svg`).
-6. `pnpm install && pnpm dev` para trabajar; `pnpm build` para publicar.
+1. Crear app Astro mínima con Preact + Tailwind (`pnpm create astro` + `astro add preact tailwind`).
+2. `.npmrc` en la landing:
+   ```
+   @mochyfm:registry=https://npm.pkg.github.com
+   //npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+   ```
+3. `pnpm add @mochyfm/forge-core`
+4. En `src/styles/app.css` de la landing:
+   ```css
+   @import "@mochyfm/forge-core/styles.css";
+   /* Tailwind v4 debe escanear las clases del paquete: */
+   @source "../../node_modules/@mochyfm/forge-core/src";
+   ```
+5. Definir la config y componer la página:
+   ```astro
+   ---
+   import Base from "@mochyfm/forge-core/layouts/Base.astro";
+   import Header from "@mochyfm/forge-core/components/layout/Header.astro";
+   import { defineSite } from "@mochyfm/forge-core/config";
+   const site = defineSite({ /* tu marca */ });
+   ---
+   <Base site={site}><Header site={site} /> ... </Base>
+   ```
 
-### Patrones
+## Actualizar todas las webs
 
-- **Animación de entrada**: añade la clase `reveal` (y opcional `reveal-delay-1..3`) a cualquier elemento.
-- **Isla interactiva**: crea un `.tsx` en `components/islands/` y úsalo desde un `.astro` con `client:visible` (o `client:load` si está en la primera pantalla, como el menú).
+1. Publica versión nueva del núcleo (arriba).
+2. En cada landing: `pnpm update @mochyfm/forge-core` + push → Cloudflare redepliega.
 
-## Deploy en Cloudflare Pages
+## Deploy de una landing en Cloudflare Pages
 
-Salida 100% estática, sin adapter ni servidor:
-
-1. Sube el repo a GitHub.
-2. Cloudflare Dashboard → **Workers & Pages → Create → Pages → Connect to Git**.
-3. Configura:
-   - **Framework preset**: `Astro`
-   - **Build command**: `pnpm build`
-   - **Build output directory**: `dist`
-   - **Node**: lo toma de `.nvmrc` (22.12.0); si no, añade variable `NODE_VERSION = 22.12.0`.
-4. **Save and Deploy**. Cada push redespliega.
+- **Framework preset**: `Astro` · **Build command**: `pnpm build` · **Output**: `dist`
+- Node desde `.nvmrc` (22.12.0) o variable `NODE_VERSION = 22.12.0`.
+- La build de Cloudflare necesita el `GITHUB_TOKEN` (read:packages) como variable
+  de entorno para instalar el paquete privado.
