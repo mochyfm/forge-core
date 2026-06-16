@@ -1,0 +1,7 @@
+/*
+  Entrada de Tailwind SOLO para el playground del propio núcleo
+  (src/pages/index.astro). Las landings consumidoras NO usan este archivo:
+  ellas tienen su propio `@import "tailwindcss"` + `@import "@mochyfm/forge-core/styles.css"`.
+*/
+@import "tailwindcss";
+@import "./global.css";

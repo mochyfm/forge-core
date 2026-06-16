@@ -1,12 +1,20 @@
-@import "tailwindcss";
-
 /*
   ──────────────────────────────────────────────────────────────
-  TEMA — edita estos tokens en cada clon (es el único sitio).
-  Si quieres una web-font, añade su @import ARRIBA del todo y
-  cambia --font-heading / --font-sans.
+  TEMA del núcleo. NO incluye `@import "tailwindcss"` a propósito:
+  el dueño de Tailwind es el CONSUMIDOR, que hace:
+      @import "tailwindcss";
+      @import "@mochyfm/forge-core/styles.css";
+  Para web-font, el consumidor añade su @import y sobreescribe
+  --font-heading / --font-sans en su propio CSS.
   ──────────────────────────────────────────────────────────────
 */
+
+/* Tailwind debe escanear los componentes del núcleo. Las rutas son
+   relativas a ESTE archivo, así que funcionan tanto enlazado en local
+   como publicado dentro de node_modules. */
+@source "../components";
+@source "../layouts";
+
 @theme {
   --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-heading: var(--font-sans);
